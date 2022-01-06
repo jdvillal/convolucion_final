@@ -8,18 +8,18 @@
 
 void escuchar_cliente(int connfd);
 long validateFile(char* filename);
+int n_current_threads = 12;
 
 void print_help(char *command)
 {
   printf("Procesador (sharpen) de imagenes multiples\n");
-  printf("uso:\n %s <puerto> <ruta/nombre listado de imagenes>\n", command);
+  printf("uso:\n %s <puerto> <ruta/nombre listado de imagenes> <cantidad_hilos>\n", command);
   printf(" %s -h\n", command);
   printf("Opciones:\n");
   printf(" -h\t\t\tAyuda, muestra este mensaje\n");
 }
 
-int main(int argc, char **argv)
-{
+int main(int argc, char **argv){
   int opt;
 
   //Sockets
@@ -43,13 +43,14 @@ int main(int argc, char **argv)
     }
   }
 
-  if(argc != 3){
-    fprintf(stderr, "uso: %s <puerto> <ruta/nombre listado de imagenes>\n", argv[0]);
+  if(argc != 4){
+    fprintf(stderr, "uso: %s <puerto> <ruta/nombre listado de imagenes> <cantidad_hilos>\n", argv[0]);
     fprintf(stderr, "     %s -h\n", argv[0]);
     return -1;
   }else{
     port = argv[1];//puerto en el que escuchara al cliente
     ruta_lista_imagenes = argv[2];//nombre o ruta del archivo txt con la lista de imagenes
+    n_current_threads = atoi(argv[3]);
   }
   //Valida el puerto
   int port_n = atoi(port);
@@ -57,11 +58,16 @@ int main(int argc, char **argv)
     fprintf(stderr, "Puerto: %s invalido. Ingrese un número entre 1 y %d.\n", port, USHRT_MAX);
     return -1;
   }
-  //Valida si el archivo existe
+  //Valida si el archivo .txt (lista de imagenes) existe
   if(validateFile(ruta_lista_imagenes) == 0){
     fprintf(stderr, "El archivo <<%s>> no ha sido encontrado\n", ruta_lista_imagenes);
     return -1;
   }
+  if(n_current_threads == 0){
+    printf("ERROR: Ingrese una cantidad inicial de hilos válida\n");
+    return -1;
+  }
+
   printf("Archivo <<%s>> encontrado\n", ruta_lista_imagenes);
 
 
@@ -95,22 +101,35 @@ void escuchar_cliente(int connfd){
     n = read(connfd, buf, MAXLINE);
     if(n <= 0)
       return;
-    for(int i = 0; i < strlen(buf); i++){
-      if(*(buf+i)=='\n'){
-        memset(buf+i,0,1);
-        break;
+
+    const char s[2] = " ";
+    char *token;
+    token = strtok(buf, s);
+
+    if(strcmp(token, "add")==0){
+      token = strtok(NULL, s);
+      long filesize = validateFile(token);//Valida si el archivo existe
+      char fsizeChar[MAXLINE] = {0};
+      sprintf(fsizeChar,"%ld", filesize);
+      n = write(connfd, fsizeChar, strlen(fsizeChar));//Envia el tamaño del archivo al cliente
+      if(n <= 0)
+        return;
+      if(filesize>0){
+        /*Si el archivo ingresado por el cliente existe, se agrega a la cola*/
       }
+    }else if(strcmp(token,"threads")==0){
+      token = strtok(NULL, s);
+      int n_threads = atoi(token);
+      printf("Cambiando a %d threads\n",n_threads);
+      char n_threadsChar[MAXLINE] = {0};
+      sprintf(n_threadsChar,"%d", n_current_threads);
+      n = write(connfd, n_threadsChar, sizeof(n_threadsChar));
+      if(n <=0)
+        return;
+      n_current_threads = n_threads;
     }
-    long filesize = validateFile(buf);
-    char fsizeChar[MAXLINE] = {0};
-    sprintf(fsizeChar,"%ld", filesize);
-    n = write(connfd, fsizeChar, strlen(fsizeChar));//Envia el tamaño del archivo al cliente
-    if(n <= 0)
-      return;
-    if(filesize>0){
-      /*Si el archivo ingresado por el cliente existe, se agrega a la cola*/
-    }
-        memset(buf, 0, MAXLINE);
+    
+    memset(buf, 0, MAXLINE);
   }
 }
 
@@ -121,11 +140,11 @@ long validateFile(char* filename){
     close(n);
     return 0;
   }else{
-      struct stat st;
-      stat(filename, &st);
-      char b[MAXLINE];
-      sprintf(b,"%ld", st.st_size);
-      return st.st_size;
+    struct stat st;
+    stat(filename, &st);
+    char b[MAXLINE];
+    sprintf(b,"%ld", st.st_size);
+    return st.st_size;
   }
 }
 
