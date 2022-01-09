@@ -1,23 +1,14 @@
 #include <getopt.h>
 #include <limits.h>
 #include <sys/stat.h>
-#include <fcntl.h> // for open
+#include <fcntl.h>
 #include <unistd.h>
 
 #include "common.h"
 
 void escuchar_cliente(int connfd);
-long validateFile(char* filename);
-int n_current_threads = 12;
 
-void print_help(char *command)
-{
-  printf("Procesador (sharpen) de imagenes multiples\n");
-  printf("uso:\n %s <puerto> <ruta/nombre listado de imagenes> <cantidad_hilos>\n", command);
-  printf(" %s -h\n", command);
-  printf("Opciones:\n");
-  printf(" -h\t\t\tAyuda, muestra este mensaje\n");
-}
+int n_current_threads = 12;
 
 int main(int argc, char **argv){
   int opt;
@@ -34,7 +25,7 @@ int main(int argc, char **argv){
     switch(opt)
     {
       case 'h':
-        print_help(argv[0]);
+        print_help_server(argv[0]);
         return 0;
       default:
         fprintf(stderr, "uso: %s <puerto>\n", argv[0]);
@@ -130,21 +121,6 @@ void escuchar_cliente(int connfd){
     }
     
     memset(buf, 0, MAXLINE);
-  }
-}
-
-//verifica si un archivo solicitado por el cliente existe o no, retorna el tamano en bytes del archivo, si no existe retorna 0
-long validateFile(char* filename){
-  int n = open(filename,O_RDONLY,0);
-  if(n<0){
-    close(n);
-    return 0;
-  }else{
-    struct stat st;
-    stat(filename, &st);
-    char b[MAXLINE];
-    sprintf(b,"%ld", st.st_size);
-    return st.st_size;
   }
 }
 

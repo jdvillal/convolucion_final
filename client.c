@@ -8,30 +8,6 @@
 #define ANSI_COLOR_CYAN    "\x1b[36m"
 #define ANSI_COLOR_RESET   "\x1b[0m"
 
-void print_help(char *command){//imprime por consola mensaje de ayuda de la opcion -h
-    printf("Cliente simple de descarga de archivos.\n");
-    printf("uso:\n %s <hostname> <puerto>\n", command);
-    printf(" %s -h\n", command);
-    printf("Opciones:\n");
-    printf(" -h\t\t\tAyuda, muestra este mensaje\n");
-}
-
-void print_error(){//imprime por consola mensaje de error
-    printf("ERROR: Introduzca un comando valido [add | threads | exit].");
-    printf("\nEjemplos:\n");
-    printf("\t>>add prueba.pgm\t(agregar la imagen \"prueba.pgm\" a la cola de procesamiento)\n");
-    printf("\t>>threads 12\t\t(Cambiar a 12 la cantidad de hilos de procesamiento)\n");
-    printf("\t>>exit\t\t\t(terminar la ejecucion del programa)\n");
-}
-
-void remove_ln(char *buf){//elimina el salto de linea al final de un string
-    for(int i = 0; i < strlen(buf); i++){
-      if(*(buf+i)=='\n'){
-        memset(buf+i,0,1);
-        break;
-      }
-    }
-}
 
 int main(int argc, char **argv)
 {
@@ -52,7 +28,7 @@ int main(int argc, char **argv)
         switch(opt)
         {
             case 'h':
-                print_help(argv[0]);
+                print_help_client(argv[0]);
                 return 0;
             default:
                 fprintf(stderr, "uso: %s <hostname> <puerto>\n", argv[0]);
@@ -129,7 +105,7 @@ int main(int argc, char **argv)
                         printf("Cantidad de hilos de procesamientos cambiada con exito de %ld a %s", n_prev_threads, token);
                     }
                 }else{//si el comando es invalido
-                    print_error();
+                    print_error_client();
                 }
             }
         }

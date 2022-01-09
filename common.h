@@ -12,6 +12,7 @@
 #include <sys/stat.h>
 #include <netdb.h>
 #include <arpa/inet.h>
+#include <fcntl.h> 
 
 #define MAXLINE 1024
 
@@ -48,3 +49,9 @@ int open_clientfd(char *hostname, char *port);
 void connection_error(int connfd);
 
 #endif /* COMMON_H */
+
+void print_help_server(char *command);
+void print_help_client(char *command);
+void print_error_client();
+void remove_ln(char *buf);
+long validateFile(char* filename);

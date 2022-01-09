@@ -1,17 +1,22 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <errno.h>
-#include <string.h>
 #include <stdio.h>
 #include <sys/mman.h>
 #include <sys/sendfile.h>
 #include <sys/stat.h>
+#include <string.h>
+#include <stdlib.h>
+
+#include <sys/types.h>
+struct stat st = {0};
 
 /*   ** Function return value meaning
  * -1 cannot open source file 
  * -2 cannot open destination file
  * 0 Success
  */
+
 
 int cp(char FileSource [], char FileDestination [])
 {
@@ -37,20 +42,28 @@ int cp(char FileSource [], char FileDestination [])
 }
 
 int main(){
+
+    FILE *f = fopen("images.txt", "w");
+    if (f == NULL)
+    {
+        printf("Error opening file!\n");
+        exit(1);
+    }
+
+
+    if (stat("./images", &st) == -1) {
+    mkdir("./images", 0700);
+    }
+
     char source[] = "demoIn.pgm";
     for(int i = 0; i < 10; i ++){
-        char prefix[100];
+        char prefix[100] = "images/";
         char i_str[10];
         sprintf(i_str,"%d",i+1);
-        strcpy(prefix,i_str);
+        strcat(prefix,i_str);
         strcat(prefix,source);
-        int cp_n;
-        if ((cp_n = cp(source, prefix))== 0){
-            printf("SUCCESS\n");
-        }else if(cp_n == -1){
-            printf("FAIL S\n");
-        }else if(cp_n == -2){
-            printf("FAIL D\n");
-        }
+        cp(source, prefix);
+        fprintf(f, "%s\n", prefix);
     }
+    fclose(f);
 }

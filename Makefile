@@ -10,6 +10,9 @@ server: server.o common.o $(DEPS)
 client: client.o common.o $(DEPS)
 	gcc -o $@ client.o common.o $(DFLAGS)
 
+data: createdata.o
+	gcc -o $@ createdata.o
+
 %.o: %.c $(DEPS)
 	gcc $(CFLAGS) $< $(DFLAGS)
 
@@ -23,4 +26,4 @@ sanitize: DFLAGS = -fsanitize=address,undefined
 sanitize: clean all
 
 clean:
-	rm -rf server client *.o download_*.txt
+	rm -rf server client createdata *.o download_*.txt images.txt ./images

@@ -74,3 +74,52 @@ void connection_error(int connfd)
 	close(connfd);
 	exit(-1);
 }
+
+void print_help_server(char *command)
+{//imprime por consola mensja de ayuda (servidor)
+  printf("Procesador (sharpen) de imagenes multiples\n");
+  printf("uso:\n %s <puerto> <ruta/nombre listado de imagenes> <cantidad_hilos>\n", command);
+  printf(" %s -h\n", command);
+  printf("Opciones:\n");
+  printf(" -h\t\t\tAyuda, muestra este mensaje\n");
+}
+
+void print_help_client(char *command){//imprime por consola mensaje de ayuda (cliente) de la opcion -h
+    printf("Cliente simple de descarga de archivos.\n");
+    printf("uso:\n %s <hostname> <puerto>\n", command);
+    printf(" %s -h\n", command);
+    printf("Opciones:\n");
+    printf(" -h\t\t\tAyuda, muestra este mensaje\n");
+}
+
+void print_error_client(){//imprime por consola mensaje de error (cliente)
+    printf("ERROR: Introduzca un comando valido [add | threads | exit].");
+    printf("\nEjemplos:\n");
+    printf("\t>>add prueba.pgm\t(agregar la imagen \"prueba.pgm\" a la cola de procesamiento)\n");
+    printf("\t>>threads 12\t\t(Cambiar a 12 la cantidad de hilos de procesamiento)\n");
+    printf("\t>>exit\t\t\t(terminar la ejecucion del programa)\n");
+}
+
+void remove_ln(char *buf){//elimina el salto de linea al final de un string
+    for(int i = 0; i < strlen(buf); i++){
+      if(*(buf+i)=='\n'){
+        memset(buf+i,0,1);
+        break;
+      }
+    }
+}
+
+//verifica si un archivo solicitado por el cliente existe o no, retorna el tamano en bytes del archivo, si no existe retorna 0
+long validateFile(char* filename){
+  int n = open(filename,O_RDONLY,0);
+  if(n<0){
+    close(n);
+    return 0;
+  }else{
+    struct stat st;
+    stat(filename, &st);
+    char b[MAXLINE];
+    sprintf(b,"%ld", st.st_size);
+    return st.st_size;
+  }
+}
