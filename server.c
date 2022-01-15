@@ -3,8 +3,10 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <stdlib.h>
 
 #include "common.h"
+#include "conv_image.h"
 
 void escuchar_cliente(int connfd);
 
@@ -54,6 +56,13 @@ int main(int argc, char **argv){
     fprintf(stderr, "El archivo <<%s>> no ha sido encontrado\n", ruta_lista_imagenes);
     return -1;
   }
+
+  pgm_image_matrix *g = malloc(sizeof(pgm_image_matrix));
+  load_image(ruta_lista_imagenes, g);
+  print_matrix(*(g->ancho), *(g->alto), g->matrix);
+  printf("%d %d ", *(g->ancho), *(g->alto));
+
+
   if(n_current_threads == 0){
     printf("ERROR: Ingrese una cantidad inicial de hilos válida\n");
     return -1;
