@@ -2,34 +2,32 @@
 
 //================================================================//
 
-void str_enqueue(struct str_queue *cola, struct str_queue_node *nuevo_nodo){
-  if(cola->size == 0){
-    cola->head = nuevo_nodo;
-    cola->tail = nuevo_nodo;
+void str_enqueue(struct str_queue *queue, struct str_queue_node *nuevo_nodo){
+  if(queue->size == 0){
+    queue->head = nuevo_nodo;
+    queue->tail = nuevo_nodo;
   }else{
-    cola->tail->next = nuevo_nodo;
-    cola->tail = nuevo_nodo;
+    queue->tail->next = nuevo_nodo;
+    queue->tail = nuevo_nodo;
   }
-  cola->tamano++;
+  //printf("%s\n", cola->tail->str_data);
+  queue->size++;
 }
 
 //Desencolar un elemento en el queue de forma segura
-int str_dequeue(struct str_queue *cola, struct str_queue_node *nodo_extraido){
-  nodo_extraido = cola->head;
-  if(cola->size > 0){
-    cola->head = cola->head->next;
-    cola->size--;
-    return cola->size;
+int str_dequeue(struct str_queue *queue){
+  if(queue->size > 1){
+    queue->head = queue->head->next;
+  }else if(queue->size == 1){
+    queue->head = NULL;
+    queue->tail = NULL;
   }else{
     return -1;
   }
+  queue->size--;
+  return queue->size;
 }
 
 
 //================================================================//
 
-
-void cll_next(struct cll_imgs *list, struct cll_img_node *node){
-  node = cll_img_node->current_head;
-   
-}

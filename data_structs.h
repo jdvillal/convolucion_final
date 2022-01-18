@@ -12,8 +12,8 @@ struct str_queue{
   struct str_queue_node *tail;
 };
 
-
-
+void str_enqueue(struct str_queue *queue, struct str_queue_node *nuevo_nodo);
+int str_dequeue(struct str_queue *queue);
 
 
 //=============================================================//

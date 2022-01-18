@@ -7,6 +7,7 @@
 
 #include "common.h"
 #include "conv_image.h"
+#include "parallel_tasks.h"
 
 void escuchar_cliente(int connfd);
 
@@ -53,15 +54,13 @@ int main(int argc, char **argv){
   }
   //Valida si el archivo .txt (lista de imagenes) existe
   if(validateFile(ruta_lista_imagenes) == 0){
-    fprintf(stderr, "El archivo <<%s>> no ha sido encontrado\n", ruta_lista_imagenes);
+    fprintf(stderr, "El archivo solicitado: <%s> no ha sido encontrado\n", ruta_lista_imagenes);
     return -1;
   }
 
-  pgm_image_matrix *g = malloc(sizeof(pgm_image_matrix));
-  load_image(ruta_lista_imagenes, g);
-  print_matrix(*(g->ancho), *(g->alto), g->matrix);
-  printf("%d %d ", *(g->ancho), *(g->alto));
-
+  iniciar_fnames_queue();
+  load_fnames_list(ruta_lista_imagenes);
+  print_fnames_queue();
 
   if(n_current_threads == 0){
     printf("ERROR: Ingrese una cantidad inicial de hilos válida\n");
@@ -116,6 +115,7 @@ void escuchar_cliente(int connfd){
         return;
       if(filesize>0){
         /*Si el archivo ingresado por el cliente existe, se agrega a la cola*/
+        add_to_fnames_queue(token);
       }
     }else if(strcmp(token,"threads")==0){
       token = strtok(NULL, s);
@@ -127,6 +127,7 @@ void escuchar_cliente(int connfd){
       if(n <=0)
         return;
       n_current_threads = n_threads;
+      print_fnames_queue();
     }
     
     memset(buf, 0, MAXLINE);

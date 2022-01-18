@@ -1,12 +1,12 @@
-DEPS = common.h pgma_io.h conv_image.h
+DEPS = common.h pgma_io.h conv_image.h data_structs.h parallel_tasks.h
 CFLAGS = -Wall -c
 DFLAGS = -lm
 
 .PHONY: all debug sanitize clean
 all: server client
 
-server: server.o common.o pgma_io.o conv_image.o  $(DEPS)
-	gcc -o $@ server.o common.o pgma_io.o conv_image.o $(DFLAGS)
+server: server.o common.o pgma_io.o conv_image.o data_structs.o parallel_tasks.o $(DEPS)
+	gcc -o $@ server.o common.o pgma_io.o conv_image.o data_structs.o parallel_tasks.o $(DFLAGS)
 
 client: client.o common.o $(DEPS)
 	gcc -o $@ client.o common.o $(DFLAGS)
