@@ -56,7 +56,7 @@ int main(){
     }
 
     char source[] = "demoIn.pgm";
-    for(int i = 0; i < 10; i ++){
+    for(int i = 0; i < 10000; i ++){
         char prefix[100] = "images/";
         char i_str[10];
         sprintf(i_str,"%d",i+1);

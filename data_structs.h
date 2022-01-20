@@ -25,15 +25,23 @@ struct pgm_img_block{
   struct pgm_img_block *next;
 };
 
-/*TDA: contiene la matriz de una imagen asi como los bloques que bloques que la componen*/
+/*Representacion struct de una imagen pgm*/
+struct pgm_img_data{
+  int *ancho;
+  int *alto;
+  int *max_gris;
+  int *matrix_original;//apunta a la direccion de memoria donde se ubica la imagen original
+  int *matrix_procesada;//apunta a la direccion de memoria donde se ubica la imagen procesada
+};
+
+/*T*/
 struct pgm_img_process{
   int id;
   int b_restantes;
-  int *matrix_original;//apunta a la direccion de memoria donde se ubica la imagen original
-  int *matrix_procesada;//apunta a la direccion de memoria donde se ubica la imagen procesada
-  struct pgm_img_block *head;
-  struct pgm_img_block *tail;
-  struct pgm_img_process *next;
+  struct pgm_img_data *img_data;//apunta a los datos de la imagen a procesar
+  struct pgm_img_block *head;//apunta al primer bloque que compone la imagen 
+  struct pgm_img_block *tail;//apunta al ultimo bloque que compone la imagen
+  struct pgm_img_process *next;//apunta al siguiente proceso en la lista de procesos
 };
 
 void pgm_img_process_enqueue(struct pgm_img_process *cola_bloques, struct pgm_img_block *nuevo_bloque);

@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 
 #include "conv_image.h"
 
@@ -43,3 +44,43 @@ const char *get_filename_ext(const char *filename) {
   return dot + 1;
 }
 
+
+int set_img_as_process(char* filename, struct pgm_img_process *n_proceso, int n_bloques){
+  int *ancho = (int*)malloc(32);//ancho de la imagen
+  int *alto = (int*)malloc(32);//alto de la imagen
+  int *max_gris = (int*)malloc(32);//maximo valor gris
+  int *o_matrix=NULL;//matriz de numeros de la imagen original
+  pgma_read_test( filename,max_gris, ancho, alto, &o_matrix );
+  int *n_matrix = ( int * ) malloc ((*ancho )*(*alto)*sizeof(int));//matriz donde se guarda imagen procesada
+
+  struct pgm_img_data *nuevo_img_data = malloc(sizeof(struct pgm_img_data));
+  nuevo_img_data->ancho = ancho;
+  nuevo_img_data->alto = alto;
+  nuevo_img_data->max_gris = max_gris;
+  nuevo_img_data->matrix_original = o_matrix;
+  nuevo_img_data->matrix_procesada = n_matrix;
+
+  n_proceso->img_data = nuevo_img_data;
+
+  if(*alto < n_bloques){
+    n_bloques = *alto;
+  }
+
+  int alto_bloques = round(*alto/n_bloques);
+  int y_f_anterior = 0;
+  printf("alto imagen: %d ancho imagen: %d alto bloques: %d\n", *alto, *ancho, alto_bloques);
+  for(int i = 1; i <= n_bloques; i++){
+    struct pgm_img_block *nuevo_bloque =  malloc(sizeof(struct pgm_img_block));
+    nuevo_bloque->x_0 = 0;
+    nuevo_bloque->y_0 = y_f_anterior;
+    nuevo_bloque->x_f = *ancho - 1;
+    nuevo_bloque->y_f = (i * alto_bloques) - 1;
+    y_f_anterior = nuevo_bloque->y_f + 1;
+
+    if(i == n_bloques && i * alto_bloques != *alto){
+        nuevo_bloque->y_f = *alto -1;
+    }
+    printf("x_0: %d  y_0: %d  x_f: %d y_f: %d\n", nuevo_bloque->x_0, nuevo_bloque->y_0, nuevo_bloque->x_f, nuevo_bloque->y_f);
+  }
+  return 1;
+}

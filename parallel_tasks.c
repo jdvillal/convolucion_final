@@ -1,9 +1,14 @@
 #include "parallel_tasks.h"
+//#include "data_structs.h"
 
 
 #define ANSI_COLOR_CYAN    "\x1b[36m"
 #define ANSI_COLOR_RESET   "\x1b[0m"
+
+
+
 //===========================================================//
+
 
 void iniciar_fnames_queue(){
   fnames_queue = malloc(sizeof(struct str_queue));
@@ -82,11 +87,8 @@ void *lector_planificador(void *tid) {
       str_dequeue(fnames_queue);
       pthread_mutex_unlock (&fnames_queue_mutex);
       printf(ANSI_COLOR_CYAN"Lector/Planificador: Cargando en memoria la imagen \"%s\" y dividiendo en %d bloques...\n"ANSI_COLOR_RESET,image_name, *n_blocks);
-
-
-      
-
-
+      struct pgm_img_process *nuevo_proceso = malloc(sizeof(struct pgm_img_process));
+      set_img_as_process(image_name, nuevo_proceso, 4 );
   }
 
 }

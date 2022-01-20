@@ -3,9 +3,10 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "data_structs.h"
 #include "common.h"
 #include "conv_image.h"
+//#include "data_structs.h"
+
 
 //=============================================================//
 

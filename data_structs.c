@@ -1,5 +1,6 @@
 #include "data_structs.h"
 
+
 //================================================================//
 
 //Encolar un elemento en el str_queue

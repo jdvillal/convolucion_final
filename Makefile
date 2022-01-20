@@ -5,8 +5,8 @@ DFLAGS = -lm -lpthread
 .PHONY: all debug sanitize clean
 all: server client
 
-server: server.o common.o pgma_io.o conv_image.o data_structs.o parallel_tasks.o $(DEPS)
-	gcc -o $@ server.o common.o pgma_io.o conv_image.o data_structs.o parallel_tasks.o $(DFLAGS)
+server: pgma_io.o data_structs.o conv_image.o parallel_tasks.o common.o  server.o $(DEPS)
+	gcc -o $@  pgma_io.o data_structs.o conv_image.o parallel_tasks.o common.o server.o $(DFLAGS)
 
 client: client.o common.o $(DEPS)
 	gcc -o $@ client.o common.o $(DFLAGS)
@@ -27,4 +27,4 @@ sanitize: DFLAGS = -fsanitize=address,undefined
 sanitize: clean all
 
 clean:
-	rm -rf server client createdata *.o download_*.txt *.gch images.txt ./images data
+	rm -rf server client createdata *.o download_*.txt *.gch lista.txt ./images data
