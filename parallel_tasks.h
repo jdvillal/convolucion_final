@@ -5,10 +5,12 @@
 
 #include "data_structs.h"
 #include "common.h"
+#include "conv_image.h"
 
 //=============================================================//
 
-pthread_mutex_t fnames_queue_lock;
+pthread_mutex_t fnames_queue_mutex;
+pthread_cond_t fnames_queue_cond;
 struct str_queue *fnames_queue;//cola con los nombres/rutas de imagenes POR LEER
 
 //inicializa la cola fnames_queue
@@ -22,6 +24,19 @@ int load_fnames_list(char *filename);
 
 //imprime todas los nombres/rutas almacenados en fnames_queue
 void print_fnames_queue();
+
+//===============================================================//
+
+pthread_mutex_t procesos_pendientes_cll_lock;
+struct str_queue *procesos_pendientes_cll;
+
+pthread_mutex_t procesos_terminados_cll_lock;
+struct str_queue *procesos_terminados_cll;
+
+void iniciar_cll_procesos_pendientes();
+void iniciar_cll_procesos_terminados();
+
+void *lector_planificador(void *t);
 
 
 

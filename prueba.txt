@@ -1,7 +1,3 @@
 demoOut.pgm
 demoIn.pgm
-prueba.txt
-me.pgm
-sdsd.gpm
-meee.pgm
 

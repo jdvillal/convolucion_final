@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <string.h>
 
 #include "conv_image.h"
 
@@ -26,7 +27,7 @@ int pgma_read_test (char *file_name, int *maxg,int *xsize,int *ysize, int **g ) 
   return pgma_read ( file_name, xsize, ysize, maxg, g );
 }
 
-int load_image(char *file_name, pgm_image_matrix *img_matrix){
+int load_image(char *file_name, struct pgm_image_matrix *img_matrix){
   img_matrix->maxg = (int*)malloc(32);
   img_matrix->ancho = (int*)malloc(32);
   img_matrix->alto = (int*)malloc(32);
@@ -35,3 +36,10 @@ int load_image(char *file_name, pgm_image_matrix *img_matrix){
   img_matrix->matrix = matrix;
   return r;
 }
+
+const char *get_filename_ext(const char *filename) {
+  const char *dot = strrchr(filename, '.');
+  if(!dot || dot == filename) return "";
+  return dot + 1;
+}
+

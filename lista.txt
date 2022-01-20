@@ -1,0 +1,10 @@
+images/1demoIn.pgm
+images/2demoIn.pgm
+images/3demoIn.pgm
+images/4demoIn.pgm
+images/5demoIn.pgm
+images/6demoIn.pgm
+images/7demoIn.pgm
+images/8demoIn.pgm
+images/9demoIn.pgm
+images/10demoIn.pgm

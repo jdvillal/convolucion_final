@@ -6,14 +6,17 @@
 #include <stdlib.h>
 
 #include "common.h"
-#include "conv_image.h"
 #include "parallel_tasks.h"
 
 void escuchar_cliente(int connfd);
 
+int *S_blocks;
+
 int n_current_threads = 12;
 
 int main(int argc, char **argv){
+  S_blocks = malloc(sizeof(int));
+  *S_blocks = 4;
   int opt;
 
   //Sockets
@@ -23,7 +26,6 @@ int main(int argc, char **argv){
   struct sockaddr_in clientaddr;
   struct hostent *hp;
   char *haddrp, *port, *ruta_lista_imagenes;
-
   while ((opt = getopt (argc, argv, "ht")) != -1){
     switch(opt)
     {
@@ -52,22 +54,25 @@ int main(int argc, char **argv){
     fprintf(stderr, "Puerto: %s invalido. Ingrese un número entre 1 y %d.\n", port, USHRT_MAX);
     return -1;
   }
-  //Valida si el archivo .txt (lista de imagenes) existe
-  if(validateFile(ruta_lista_imagenes) == 0){
-    fprintf(stderr, "El archivo solicitado: <%s> no ha sido encontrado\n", ruta_lista_imagenes);
-    return -1;
-  }
-
-  iniciar_fnames_queue();
-  load_fnames_list(ruta_lista_imagenes);
-  print_fnames_queue();
 
   if(n_current_threads == 0){
     printf("ERROR: Ingrese una cantidad inicial de hilos válida\n");
     return -1;
   }
 
-  printf("Archivo <<%s>> encontrado\n", ruta_lista_imagenes);
+
+  //Valida si el archivo .txt (lista de imagenes) existe
+  if(validateFile(ruta_lista_imagenes) == 0){
+    fprintf(stderr, "MAIN: El archivo solicitado: \"%s\" no ha sido encontrado\n", ruta_lista_imagenes);
+    return -1;
+  }
+  printf("MAIN: Leyendo el archivo \"%s\"\n", ruta_lista_imagenes);
+
+  iniciar_fnames_queue();
+  load_fnames_list(ruta_lista_imagenes);
+  printf("MAIN: Iniciando hilo Lector/Planificador...\n");
+  pthread_t th;
+  pthread_create(&th, NULL, lector_planificador, (void*)S_blocks);
 
 
   //Abre un socket de escucha en puerto indicado por el usuario
@@ -75,7 +80,7 @@ int main(int argc, char **argv){
   if(listenfd < 0)
     connection_error(listenfd);
 
-  printf("Escuchando instrucciones en el puerto %s...\n", port);
+  printf("MAIN: Escuchando instrucciones remotas en el puerto %s...\n", port);
 
   while (1) {
     clientlen = sizeof(clientaddr);
@@ -85,9 +90,9 @@ int main(int argc, char **argv){
     hp = gethostbyaddr((const char *)&clientaddr.sin_addr.s_addr, sizeof(clientaddr.sin_addr.s_addr), AF_INET);
     haddrp = inet_ntoa(clientaddr.sin_addr);
 
-    printf("server conectado a %s (%s)\n", hp->h_name, haddrp);
+    printf("MAIN: conectado a %s (%s)\n", hp->h_name, haddrp);
     escuchar_cliente(connfd);
-    printf("server desconectando de %s (%s)\n", hp->h_name, haddrp);
+    printf("MAIN: desconectando de %s (%s)\n", hp->h_name, haddrp);
 
     close(connfd);
   }

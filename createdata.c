@@ -43,7 +43,7 @@ int cp(char FileSource [], char FileDestination [])
 
 int main(){
 
-    FILE *f = fopen("images.txt", "w");
+    FILE *f = fopen("lista.txt", "w");
     if (f == NULL)
     {
         printf("Error opening file!\n");
