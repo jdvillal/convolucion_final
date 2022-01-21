@@ -3,10 +3,10 @@
 
 //Estructura, representa de forma matricial una imagen pgm
 struct pgm_image_matrix{
-  int *ancho;
-  int *alto;
-  int *maxg;
-  int *matrix;
+	int *ancho;
+	int *alto;
+	int *maxg;
+	int *matrix;
 };
 
 
@@ -18,3 +18,7 @@ int load_image(char *file_name, struct pgm_image_matrix *img_matrix);
 const char *get_filename_ext(const char *filename);
 
 int set_img_as_process(char* filename, struct pgm_process *n_proceso, int n_bloques);
+void apply_sharpen(struct pgm_data *my_data, struct pgm_task *my_task);
+char *get_file_out_name(struct pgm_process *my_process);
+
+int save_image(struct pgm_process *my_process);

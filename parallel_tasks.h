@@ -54,7 +54,13 @@ struct pgm_process_cll *procesos_terminados_cll;
 
 void iniciar_cll_procesos_terminados();
 
+typedef struct {
+	int id;
+} worker_id;
+
 void *worker_thread(void *tid);
+
+void *almacenador(void *tid);
 
 
 

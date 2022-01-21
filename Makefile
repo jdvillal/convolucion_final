@@ -27,4 +27,4 @@ sanitize: DFLAGS = -fsanitize=address,undefined
 sanitize: clean all
 
 clean:
-	rm -rf server client createdata *.o download_*.txt *.gch lista.txt ./images data
+	rm -rf server client createdata *.o download_*.txt *.gch lista.txt ./images data ./imagesOut
