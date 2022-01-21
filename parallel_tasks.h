@@ -10,7 +10,7 @@
 
 //=============================================================//
 
-pthread_mutex_t fnames_queue_mutex;
+pthread_mutex_t fnames_queue_lock;
 pthread_cond_t fnames_queue_cond;
 struct str_queue *fnames_queue;//cola con los nombres/rutas de imagenes POR LEER
 
@@ -26,18 +26,35 @@ int load_fnames_list(char *filename);
 //imprime todas los nombres/rutas almacenados en fnames_queue
 void print_fnames_queue();
 
+
+void print_process_cll();
 //===============================================================//
 
 pthread_mutex_t procesos_pendientes_cll_lock;
-struct str_queue *procesos_pendientes_cll;
+pthread_cond_t procesos_pendientes_cll_cond;
+struct pgm_process_cll *procesos_pendientes_cll;
 
-pthread_mutex_t procesos_terminados_cll_lock;
-struct str_queue *procesos_terminados_cll;
 
 void iniciar_cll_procesos_pendientes();
-void iniciar_cll_procesos_terminados();
 
 void *lector_planificador(void *t);
+
+//=============================================================//
+
+pthread_mutex_t setted_thread_count_lock;
+pthread_cond_t setted_thread_count_cond;
+int setted_thread_count;
+
+void set_thread_count(int new_thread_count);
+int get_thread_count();
+
+pthread_mutex_t procesos_terminados_cll_lock;
+pthread_cond_t procesos_terminados_cll_cond;
+struct pgm_process_cll *procesos_terminados_cll;
+
+void iniciar_cll_procesos_terminados();
+
+void *worker_thread(void *tid);
 
 
 

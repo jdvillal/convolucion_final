@@ -460,7 +460,7 @@ void pgma_read_header ( FILE *file_in, int *xsize, int *ysize, int *maxg )
         continue;
       }
       next = next + width;
-      printf("word %s\n", word);
+      //printf("word %s\n", word);
       if ( strcmp ( word, "P2" ) != 0 && strcmp ( word, "p2" ) != 0 )
       {
         fprintf ( stderr, "\n" );

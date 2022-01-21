@@ -58,6 +58,8 @@ int main(int argc, char **argv){
   if(n_current_threads == 0){
     printf("ERROR: Ingrese una cantidad inicial de hilos válida\n");
     return -1;
+  }else{
+    set_thread_count(n_current_threads);
   }
 
 
@@ -69,10 +71,14 @@ int main(int argc, char **argv){
   printf("MAIN: Leyendo el archivo \"%s\"\n", ruta_lista_imagenes);
 
   iniciar_fnames_queue();
+  iniciar_cll_procesos_pendientes();
   load_fnames_list(ruta_lista_imagenes);
   printf("MAIN: Iniciando hilo Lector/Planificador...\n");
   pthread_t th;
   pthread_create(&th, NULL, lector_planificador, (void*)S_blocks);
+  for(int i = 0; i < get_thread_count(); i++){
+    pthread_create(&th, NULL, worker_thread, (void*)i);
+  }
 
 
   //Abre un socket de escucha en puerto indicado por el usuario

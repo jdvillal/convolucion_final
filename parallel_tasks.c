@@ -24,9 +24,9 @@ void add_to_fnames_queue(char *filename){
   struct str_queue_node *n_nodo = malloc(sizeof(struct str_queue_node));
   n_nodo->str_data = (char*) malloc(strlen(filename)*sizeof(char));
   strcpy(n_nodo->str_data, filename);
-  pthread_mutex_lock (&fnames_queue_mutex);
+  pthread_mutex_lock (&fnames_queue_lock);
   str_enqueue(fnames_queue, n_nodo);
-  pthread_mutex_unlock (&fnames_queue_mutex);
+  pthread_mutex_unlock (&fnames_queue_lock);
   pthread_cond_signal(&fnames_queue_cond);
 }
 
@@ -57,13 +57,55 @@ void print_fnames_queue(){
   }
 }
 
+void print_process_cll(){
+  struct pgm_process *n = procesos_pendientes_cll->head;
+  for(int i = 0; i < *(procesos_pendientes_cll->size); i ++){
+    printf("En cola de procesos: %ld\n", n);
+    n = n->next;
+  }
+  printf("\n");
+}
+
 //==================================================================//
 
 void iniciar_cll_procesos_pendientes(){
   procesos_pendientes_cll = malloc(sizeof(procesos_pendientes_cll));
-  procesos_pendientes_cll->size = malloc(sizeof(int));
+  procesos_pendientes_cll->size = malloc(sizeof(int*));
   *(procesos_pendientes_cll->size) = 0;
 }
+
+void *lector_planificador(void *tid) {
+  int *n_blocks = (int *) tid;
+  int count = 1;
+  while(1){
+    printf("%d\n", count);
+      pthread_mutex_lock (&fnames_queue_lock);//Se bloquea el acceso a la lista nombres de archivos por leer
+      while(*(fnames_queue->size)<1){//Cuando no hay imagenes por leer en la lista, el hilo se suspende
+          printf(ANSI_COLOR_CYAN"Lector/Planificador: Sin imagenes que cargar. Suspendiendo...\n"ANSI_COLOR_RESET);
+          pthread_cond_wait(&fnames_queue_cond, &fnames_queue_lock);
+          printf(ANSI_COLOR_CYAN"Lector/Planificador: reactivado\n"ANSI_COLOR_RESET);
+      }
+      //Cuando una nueva imagen ha sido agregada a la lista el hilo se vuelve a activar
+      char *image_name = fnames_queue->head->str_data;
+      str_dequeue(fnames_queue);
+      pthread_mutex_unlock (&fnames_queue_lock);
+      printf(ANSI_COLOR_CYAN"Lector/Planificador: Cargando en memoria la imagen \"%s\" y dividiendo en %d bloques...\n"ANSI_COLOR_RESET,image_name, *n_blocks);
+      struct pgm_process *nuevo_proceso = malloc(sizeof(struct pgm_process));
+      nuevo_proceso->id = count;
+      set_img_as_process(image_name, nuevo_proceso, *n_blocks );
+      
+      pthread_mutex_lock (&procesos_pendientes_cll_lock);//Se bloquea el acceso a la cola de procesos
+      agregar_proceso(procesos_pendientes_cll, nuevo_proceso);//Se agrega un nuevo proceso a la cola
+      print_process_cll();//////////////
+      pthread_mutex_unlock (&procesos_pendientes_cll_lock);
+      pthread_cond_broadcast(&procesos_pendientes_cll_cond);//Cuando la cola de procesos ha sido modificada se notifica a los worker thread
+      count++;
+      
+  }
+
+}
+
+//======================================================================//
 
 void iniciar_cll_procesos_terminados(){
   procesos_terminados_cll = malloc(sizeof(procesos_pendientes_cll));
@@ -71,24 +113,50 @@ void iniciar_cll_procesos_terminados(){
   *(procesos_terminados_cll->size) = 0;
 }
 
-void *lector_planificador(void *tid) {
-  int *n_blocks = (int *) tid;
+void set_thread_count(int new_thread_count){
+  pthread_mutex_lock (&setted_thread_count_lock);//se protege el acceso al contador de threads seteados por el usuario
+  setted_thread_count = new_thread_count;//se actualiza el contador de worker_threads activos
+  pthread_mutex_unlock (&setted_thread_count_lock);
+  pthread_cond_broadcast(&setted_thread_count_cond);//Una vez seteado el valor se notifica a los worker_threads
+}
+
+int get_thread_count(){
+  return setted_thread_count;
+}
+
+void *worker_thread(void *tid) {
+  sleep(3);
+  int worker_id = (int) tid;
+  printf("worker_id: %d\n", worker_id);
   while(1){
-      //Se protege el acceso a la lista nombres de archivos por leer
-      pthread_mutex_lock (&fnames_queue_mutex);
-      //Cuando no hay imagenes por leer en la lista, el hilo se suspende
-      while(*(fnames_queue->size)<1){
-          printf(ANSI_COLOR_CYAN"Lector/Planificador: Sin imagenes que cargar. Suspendiendo...\n"ANSI_COLOR_RESET);
-          pthread_cond_wait(&fnames_queue_cond, &fnames_queue_mutex);
-          printf(ANSI_COLOR_CYAN"Lector/Planificador: reactivado\n"ANSI_COLOR_RESET);
-      }
-      //Cuando una nueva imagen ha sido agregada a la lista el hilo se vuelve a activar
-      char *image_name = fnames_queue->head->str_data;
-      str_dequeue(fnames_queue);
-      pthread_mutex_unlock (&fnames_queue_mutex);
-      printf(ANSI_COLOR_CYAN"Lector/Planificador: Cargando en memoria la imagen \"%s\" y dividiendo en %d bloques...\n"ANSI_COLOR_RESET,image_name, *n_blocks);
-      struct pgm_img_process *nuevo_proceso = malloc(sizeof(struct pgm_img_process));
-      set_img_as_process(image_name, nuevo_proceso, 4 );
+    sleep(1);
+    pthread_mutex_lock(&procesos_pendientes_cll_lock);
+    while(*(procesos_pendientes_cll->size) < 1){
+      printf(ANSI_COLOR_CYAN"WORKER_THREAD %d: Sin imagenes que procesar. Suspendiendo...\n"ANSI_COLOR_RESET, worker_id);
+      pthread_cond_wait(&procesos_pendientes_cll_cond, &procesos_pendientes_cll_lock);
+    }
+    pthread_mutex_unlock(&procesos_pendientes_cll_lock);
+
+    pthread_mutex_lock (&setted_thread_count_lock);//se bloquea el acceso a la cantidad de hilos seteada
+    while(setted_thread_count < worker_id){//Se suspende si la cantidad de hilos seteada es menor al id del thread
+      printf(ANSI_COLOR_CYAN"WORKER_THREAD: Suspendiendo...\n"ANSI_COLOR_RESET);
+      pthread_cond_wait(&setted_thread_count_cond, &setted_thread_count_lock);
+    }
+    //Cuando la cantidad de hilos seteada es mayor al id del thread se activa
+    struct pgm_process *proceso = procesos_pendientes_cll->pointer;//se accede al siguiente proceso en la cola
+    //move_pointer(procesos_pendientes_cll);
+    struct pgm_task *task = proceso->head;//se extrae el siguiente task disponible del proceso
+    move_pointer(procesos_pendientes_cll);
+    print_process_cll();//////////////////
+    if(dequeue_task(proceso)==0){
+      printf("rmbi\n");
+      remove_process_by_id(proceso->id, procesos_pendientes_cll);
+      printf("rmbi\n");
+    }
+    //print_process_cll();//////////////////
+    pthread_mutex_unlock(&setted_thread_count_lock);
+
   }
+
 
 }

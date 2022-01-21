@@ -31,32 +31,32 @@ int str_dequeue(struct str_queue *queue){
 
 //================================================================//
 
-void pgm_img_process_enqueue(struct pgm_img_process *cola_bloques, struct pgm_img_block *nuevo_bloque){
-  if(cola_bloques->b_restantes == 0){
-    cola_bloques->head = nuevo_bloque;
-    cola_bloques->tail = nuevo_bloque;
+void enqueue_task(struct pgm_process *proceso, struct pgm_task *nuevo_bloque){
+  if(proceso->b_restantes == 0){
+    proceso->head = nuevo_bloque;
+    proceso->tail = nuevo_bloque;
   }else{
-    cola_bloques->tail->next = nuevo_bloque;
-    cola_bloques->tail = nuevo_bloque;
+    proceso->tail->next = nuevo_bloque;
+    proceso->tail = nuevo_bloque;
   }
-  cola_bloques->b_restantes = cola_bloques->b_restantes + 1;
+  proceso->b_restantes = proceso->b_restantes + 1;
 }
 
-int pgm_img_process_dequeue(struct pgm_img_process *cola_bloques){
-  if(cola_bloques->b_restantes > 1){
-    cola_bloques->head = cola_bloques->head->next;
-  }else if(cola_bloques->b_restantes == 1){
-    cola_bloques->head = NULL;
-    cola_bloques->tail = NULL;
+int dequeue_task(struct pgm_process *proceso){
+  if(proceso->b_restantes > 1){
+    proceso->head = proceso->head->next;
+  }else if(proceso->b_restantes == 1){
+    proceso->head = NULL;
+    proceso->tail = NULL;
   }else{
     return -1;
   }
-  cola_bloques->b_restantes--;
-  return cola_bloques->b_restantes;
+  proceso->b_restantes--;
+  return proceso->b_restantes;
 }
 
 
-void imgs_cll_add(struct imgs_process_cll *cll_procesos, struct pgm_img_process *nuevo_proceso){
+void agregar_proceso(struct pgm_process_cll *cll_procesos, struct pgm_process *nuevo_proceso){
   if(*(cll_procesos->size) == 0){
     cll_procesos->head = nuevo_proceso;
     cll_procesos->tail = nuevo_proceso;
@@ -70,11 +70,11 @@ void imgs_cll_add(struct imgs_process_cll *cll_procesos, struct pgm_img_process 
   *(cll_procesos->size) = *(cll_procesos->size) + 1;
 }
 
-void move_pointer(struct imgs_process_cll *cll_procesos){
+void move_pointer(struct pgm_process_cll *cll_procesos){
   cll_procesos->pointer = cll_procesos->pointer->next;
 }
 
-int imgs_cll_get_by_id(int p_id, struct imgs_process_cll *cll_procesos, struct pgm_img_process *proceso){
+int get_process_by_id(int p_id, struct pgm_process_cll *cll_procesos, struct pgm_process *proceso){
   proceso = cll_procesos->head;
   for(int i = 1; i < *(cll_procesos->size)+1; i++){
     if(proceso->id == p_id){
@@ -85,18 +85,23 @@ int imgs_cll_get_by_id(int p_id, struct imgs_process_cll *cll_procesos, struct p
   return 0;
 };
 
-int imgs_cll_remove_by_id(int p_id, struct imgs_process_cll *cll_procesos){
-  struct pgm_img_process *anterior = cll_procesos->tail;
-  struct pgm_img_process *current = cll_procesos->head;
+int remove_process_by_id(int p_id, struct pgm_process_cll *cll_procesos){
+  struct pgm_process *anterior = cll_procesos->tail;
+  struct pgm_process *current = cll_procesos->head;
   if(*(cll_procesos->size)==1 && current->id == p_id){
-      cll_procesos->head = NULL;
-      cll_procesos->tail = NULL;
-      cll_procesos->pointer = NULL;
-      return 1;
+    cll_procesos->head = NULL;
+    cll_procesos->tail = NULL;
+    cll_procesos->pointer = NULL;
+    *(cll_procesos->size) = *(cll_procesos->size) - 1;
+    return 1;
   }
   for(int i = 0; i < *(cll_procesos->size); i++){
     if(current->id == p_id){
-      anterior->next = current->next;
+      if(cll_procesos->pointer == current){
+        move_pointer(cll_procesos);
+      }
+      cll_procesos->head = cll_procesos->head->next;
+      anterior->next = cll_procesos->head;
       *(cll_procesos->size) = *(cll_procesos->size) - 1;
       return 1;
     }

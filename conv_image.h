@@ -17,4 +17,4 @@ int pgma_read_test (char *file_name, int *maxg,int *xsize,int *ysize, int **g );
 int load_image(char *file_name, struct pgm_image_matrix *img_matrix);
 const char *get_filename_ext(const char *filename);
 
-int set_img_as_process(char* filename, struct pgm_img_process *n_proceso, int n_bloques);
+int set_img_as_process(char* filename, struct pgm_process *n_proceso, int n_bloques);
