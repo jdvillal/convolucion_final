@@ -1,12 +1,12 @@
 DEPS = common.h pgma_io.h conv_image.h data_structs.h parallel_tasks.h
-CFLAGS = -Wall -c
+CFLAGS = -c -g
 DFLAGS = -lm -lpthread
 
 .PHONY: all debug sanitize clean
 all: server client
 
 server: pgma_io.o data_structs.o conv_image.o parallel_tasks.o common.o  server.o $(DEPS)
-	gcc -o $@  pgma_io.o data_structs.o conv_image.o parallel_tasks.o common.o server.o $(DFLAGS)
+	gcc -g -o $@  pgma_io.o data_structs.o conv_image.o parallel_tasks.o common.o server.o $(DFLAGS)
 
 client: client.o common.o $(DEPS)
 	gcc -o $@ client.o common.o $(DFLAGS)
@@ -27,4 +27,4 @@ sanitize: DFLAGS = -fsanitize=address,undefined
 sanitize: clean all
 
 clean:
-	rm -rf server client createdata *.o download_*.txt *.gch lista.txt ./images data ./imagesOut
+	rm -rf server client createdata *.o download_*.txt *.gch ./imagesOut ./data ./images lista.txt

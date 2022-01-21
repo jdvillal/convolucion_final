@@ -1,3 +1,4 @@
+#include <string.h>
 #include"pgma_io.h"
 #include "data_structs.h"
 

@@ -159,14 +159,25 @@ void apply_sharpen(struct pgm_data *my_data, struct pgm_task *my_task){
 
 }
 
+
+
 char *get_file_out_name(struct pgm_process *my_process){
 	char *str = malloc(100*sizeof(char));
-	char id_str[10];
-	sprintf(id_str, "%d_sharpen_", my_process->id);
 	strcpy(str, "imagesOut/" );
+	char id_str[20];
+	sprintf(id_str, "sharpen_%d_", my_process->id);
 	strcat(str, id_str);
-	strcat(str, my_process->img_data->name);
-	printf("%s\n", str);
+
+	const char ch = '/';
+	char *ret;
+	ret = strrchr(my_process->img_data->name, ch);
+
+	if(ret == NULL){
+		strcat(str, my_process->img_data->name);
+	}else{
+		strcat(str, ret+1);
+	}
+	//printf("%s\n", str);
 	return str;
 }
 

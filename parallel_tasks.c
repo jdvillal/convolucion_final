@@ -78,7 +78,7 @@ void *lector_planificador(void *tid) {
 	int *n_blocks = (int *) tid;
 	int count = 1;
 	while(1){
-		printf("%d\n", count);
+		//printf("%d\n", count);
 		pthread_mutex_lock (&fnames_queue_lock);//Se bloquea el acceso a la lista nombres de archivos por leer
 		while(*(fnames_queue->size)<1){//Cuando no hay imagenes por leer en la lista, el hilo se suspende
 				printf(ANSI_COLOR_CYAN"Lector/Planificador: Sin imagenes que cargar. Suspendiendo...\n"ANSI_COLOR_RESET);
@@ -89,14 +89,14 @@ void *lector_planificador(void *tid) {
 		char *image_name = fnames_queue->head->str_data;
 		str_dequeue(fnames_queue);
 		pthread_mutex_unlock (&fnames_queue_lock);
-		printf(ANSI_COLOR_CYAN"Lector/Planificador: Cargando en memoria la imagen \"%s\" y dividiendo en %d bloques...\n"ANSI_COLOR_RESET,image_name, *n_blocks);
+		//printf(ANSI_COLOR_CYAN"Lector/Planificador: Cargando en memoria la imagen \"%s\" y dividiendo en %d bloques...\n"ANSI_COLOR_RESET,image_name, *n_blocks);
 		struct pgm_process *nuevo_proceso = malloc(sizeof(struct pgm_process));
 		nuevo_proceso->id = count;
 		set_img_as_process(image_name, nuevo_proceso, *n_blocks );
 		
 		pthread_mutex_lock (&procesos_pendientes_cll_lock);//Se bloquea el acceso a la cola de procesos
 		agregar_proceso(procesos_pendientes_cll, nuevo_proceso);//Se agrega un nuevo proceso a la cola
-		print_process_cll();//////////////
+		//print_process_cll();//////////////
 		pthread_mutex_unlock (&procesos_pendientes_cll_lock);
 		pthread_cond_broadcast(&procesos_pendientes_cll_cond);//Cuando la cola de procesos ha sido modificada se notifica a los worker thread
 		count++;
@@ -125,37 +125,31 @@ int get_thread_count(){
 }
 
 void *worker_thread(void *tid) {
-	sleep(3);
 	worker_id *thread_id = tid;
 	int worker_id = (int) thread_id->id;
-	printf("worker_id: %d\n", worker_id);
 	while(1){
-		sleep(1);
-		pthread_mutex_lock(&procesos_pendientes_cll_lock);//se bloquea el acceso a la cll de procesos
-		while(*(procesos_pendientes_cll->size) < 1){//se suspende si no hay procesos disponibles
-			printf(ANSI_COLOR_CYAN"WORKER_THREAD %d: Sin imagenes que procesar. Suspendiendo...\n"ANSI_COLOR_RESET, worker_id);
-			pthread_cond_wait(&procesos_pendientes_cll_cond, &procesos_pendientes_cll_lock);//se espera a que el planificador agregue procesos
-		}
-		//cuando se encuentran procesos disponibles el worker thread se activa 
-		pthread_mutex_unlock(&procesos_pendientes_cll_lock);
-
-
 		pthread_mutex_lock (&setted_thread_count_lock);//se bloquea el acceso a la cantidad de hilos seteada
 		while(setted_thread_count < worker_id){//Se suspende si la cantidad de hilos seteada es menor al id del thread
 			printf(ANSI_COLOR_CYAN"WORKER_THREAD: Suspendiendo...\n"ANSI_COLOR_RESET);
 			pthread_cond_wait(&setted_thread_count_cond, &setted_thread_count_lock);//se espera a que el usuario actualice la cantidad de worker_threads
 		}
+		pthread_mutex_unlock(&setted_thread_count_lock);
 		//Cuando la cantidad de hilos seteada es mayor al worker_id el worker_thread se activa
+
+
+		pthread_mutex_lock(&procesos_pendientes_cll_lock);//se bloquea el acceso a la cll de procesos
+		while(*(procesos_pendientes_cll->size) < 1){//se suspende si no hay procesos disponibles
+			//printf(ANSI_COLOR_CYAN"WORKER_THREAD %d: Sin imagenes que procesar. Suspendiendo...\n"ANSI_COLOR_RESET, worker_id);
+			pthread_cond_wait(&procesos_pendientes_cll_cond, &procesos_pendientes_cll_lock);//se espera a que el planificador agregue procesos
+		}
+		//cuando se encuentran procesos disponibles el worker thread se activa 
 		struct pgm_process *proceso = procesos_pendientes_cll->pointer;//se accede al siguiente proceso en la cola
 		struct pgm_task *my_task = proceso->head;//se extrae el siguiente task disponible del proceso
 		move_pointer(procesos_pendientes_cll);//se mueve el puntero en la cola de procesos
-		print_process_cll();//////////////////
 		int complete;
 		if((complete = !dequeue_task(proceso))==1){//se remueve el task extraido y se verifica si quedan tasks pendientes en el proceso
 			remove_process_by_id(proceso->id, procesos_pendientes_cll);//si no quedan tasks pendientes se remueve el proceso de la cll de procesos
-		}
-		//print_process_cll();//////////////////
-		pthread_mutex_unlock(&setted_thread_count_lock);
+		}pthread_mutex_unlock(&procesos_pendientes_cll_lock);	
 
 		apply_sharpen(proceso->img_data, my_task);//se aplica el filtro a la porcion de la imagen que representa el task
 
@@ -183,7 +177,7 @@ void *almacenador(void *tid){
 			printf(ANSI_COLOR_CYAN"ALMACENADOR: En espera de procesos terminados. Suspendiendo...\n"ANSI_COLOR_RESET);
 			pthread_cond_wait(&procesos_terminados_cll_cond, &procesos_terminados_cll_lock);//se espera a que los worked_thread agreguen procesos terminados
 		}
-		printf(ANSI_COLOR_CYAN"ALMACENADOR: despertado\n"ANSI_COLOR_RESET);
+		//printf(ANSI_COLOR_CYAN"ALMACENADOR: despertado\n"ANSI_COLOR_RESET);
 		struct pgm_process *nuevo_terminado = procesos_terminados_cll->head;//se accede al proceso terminado mas viejo en la lista
 		remove_older(procesos_terminados_cll);//se remueve el proceso terminado de la lista de procesos terminados
 		pthread_mutex_unlock(&procesos_terminados_cll_lock);
