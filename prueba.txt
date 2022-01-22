@@ -1,5 +1,1 @@
 demoOut.pgm
-demoOut.pgm
-demoOut.pgm
-demoOut.pgm
-demoOut.pgm

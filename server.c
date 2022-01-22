@@ -12,7 +12,8 @@ void escuchar_cliente(int connfd);
 
 int *S_blocks;
 
-int n_current_threads = 12;
+int current_max_threads = 0;
+pthread_t w_tid[1000];
 
 int main(int argc, char **argv){
 	S_blocks = malloc(sizeof(int));
@@ -46,7 +47,8 @@ int main(int argc, char **argv){
 	}else{
 		port = argv[1];//puerto en el que escuchara al cliente
 		ruta_lista_imagenes = argv[2];//nombre o ruta del archivo txt con la lista de imagenes
-		n_current_threads = atoi(argv[3]);
+		current_max_threads = atoi(argv[3]);//Cantidad inicial de hilos
+		//Cantidad de bloques a dividir las imagenes
 	}
 	//Valida el puerto
 	int port_n = atoi(port);
@@ -54,12 +56,12 @@ int main(int argc, char **argv){
 		fprintf(stderr, "Puerto: %s invalido. Ingrese un número entre 1 y %d.\n", port, USHRT_MAX);
 		return -1;
 	}
-
-	if(n_current_threads == 0){
+	//valida que la cantidad de hilos ingreasada por el usuario sea numerica
+	if(current_max_threads == 0){
 		printf("ERROR: Ingrese una cantidad inicial de hilos válida\n");
 		return -1;
 	}else{
-		set_thread_count(n_current_threads);
+		set_thread_count(current_max_threads);
 	}
 
 
@@ -74,16 +76,18 @@ int main(int argc, char **argv){
 	iniciar_cll_procesos_pendientes();
 	iniciar_cll_procesos_terminados();
 	load_fnames_list(ruta_lista_imagenes);
-	printf("MAIN: Iniciando hilo Lector/Planificador...\n");
 	pthread_t th;
 	pthread_create(&th, NULL, lector_planificador, (void*)S_blocks);
+	printf("MAIN: Hilo Lector/Planificador inciado.\n");
 	pthread_t th2;
 	pthread_create(&th2, NULL, almacenador, NULL);
-	for(int i = 0; i < get_thread_count(); i++){
+	printf("MAIN: Hilo Almacenador inciado.\n");
+	for(int i = 1; i <= get_thread_count(); i++){
 		worker_id *thread_id = malloc(sizeof(worker_id));
 		thread_id->id = i;
-		pthread_create(&th, NULL, worker_thread, (void*)thread_id);
+		pthread_create(&w_tid[i-1], NULL, worker_thread, (void*)thread_id);
 	}
+	printf("MAIN: Cantidad inicial de hilos de procesamiento seteada a %d threads.\n",get_thread_count());
 
 
 	//Abre un socket de escucha en puerto indicado por el usuario
@@ -124,6 +128,11 @@ void escuchar_cliente(int connfd){
 		if(strcmp(token, "add")==0){
 			token = strtok(NULL, s);
 			long filesize = validateFile(token);//Valida si el archivo existe
+			if(filesize > 0){
+				printf("MAIN: Comando remoto recibido>> add %s\n\tEl archivo \"%s\" ha sido encontrado\n", token, token);
+			}else{
+				printf("MAIN: Comando remoto recibido>> add %s\n\tERROR:El archivo %s no exite\n", token, token);
+			}
 			char fsizeChar[MAXLINE] = {0};
 			sprintf(fsizeChar,"%ld", filesize);
 			n = write(connfd, fsizeChar, strlen(fsizeChar));//Envia el tamaño del archivo al cliente
@@ -136,14 +145,22 @@ void escuchar_cliente(int connfd){
 		}else if(strcmp(token,"threads")==0){
 			token = strtok(NULL, s);
 			int n_threads = atoi(token);
-			printf("Cambiando a %d threads\n",n_threads);
+			printf("MAIN: Comando remoto recibido>> threads %d \nMAIN: Cambiando a %d hilos de procesamiento disponibles\n",n_threads, n_threads);
 			char n_threadsChar[MAXLINE] = {0};
-			sprintf(n_threadsChar,"%d", n_current_threads);
+			sprintf(n_threadsChar,"%d", get_thread_count());
+			set_thread_count(n_threads);
+			if(n_threads > current_max_threads){
+				for(int i = current_max_threads + 1 ; i <= n_threads; i++ ){
+					worker_id *thread_id = malloc(sizeof(worker_id));
+					thread_id->id = i;
+					pthread_create(&w_tid[i-1], NULL, worker_thread, (void*)thread_id);
+				}
+				current_max_threads = n_threads;
+			}
 			n = write(connfd, n_threadsChar, sizeof(n_threadsChar));
 			if(n <=0)
 				return;
-			n_current_threads = n_threads;
-			print_fnames_queue();
+			//print_fnames_queue();
 		}
 		
 		memset(buf, 0, MAXLINE);
