@@ -38,7 +38,9 @@ struct pgm_data{
 /*T*/
 struct pgm_process{
 	int id;
-	int b_restantes;
+	int n_tasks;
+	int tasks_restantes;
+	int tasks_completados;
 	struct pgm_data *img_data;//apunta a los datos de la imagen a procesar
 	struct pgm_task *head;//apunta al primer bloque que compone la imagen 
 	struct pgm_task *tail;//apunta al ultimo bloque que compone la imagen

@@ -32,27 +32,27 @@ int str_dequeue(struct str_queue *queue){
 //================================================================//
 
 void enqueue_task(struct pgm_process *proceso, struct pgm_task *nuevo_bloque){
-	if(proceso->b_restantes == 0){
+	if(proceso->tasks_restantes == 0){
 		proceso->head = nuevo_bloque;
 		proceso->tail = nuevo_bloque;
 	}else{
 		proceso->tail->next = nuevo_bloque;
 		proceso->tail = nuevo_bloque;
 	}
-	proceso->b_restantes = proceso->b_restantes + 1;
+	proceso->tasks_restantes = proceso->tasks_restantes + 1;
 }
 
 int dequeue_task(struct pgm_process *proceso){
-	if(proceso->b_restantes > 1){
+	if(proceso->tasks_restantes > 1){
 		proceso->head = proceso->head->next;
-	}else if(proceso->b_restantes == 1){
+	}else if(proceso->tasks_restantes == 1){
 		proceso->head = NULL;
 		proceso->tail = NULL;
 	}else{
 		return -1;
 	}
-	proceso->b_restantes--;
-	return proceso->b_restantes;
+	proceso->tasks_restantes--;
+	return proceso->tasks_restantes;
 }
 
 
@@ -95,7 +95,12 @@ int remove_process_by_id(int p_id, struct pgm_process_cll *cll_procesos){
 		*(cll_procesos->size) = *(cll_procesos->size) - 1;
 		return 1;
 	}
-	for(int i = 0; i < *(cll_procesos->size); i++){
+	cll_procesos->head = cll_procesos->head->next;
+	anterior->next = cll_procesos->head;
+	*(cll_procesos->size) = *(cll_procesos->size) - 1;
+	return 1;
+	/*for(int i = 0; i < *(cll_procesos->size); i++){
+		printf("%d\n",i);
 		if(current->id == p_id){
 			if(cll_procesos->pointer == current){
 				move_pointer(cll_procesos);
@@ -108,7 +113,7 @@ int remove_process_by_id(int p_id, struct pgm_process_cll *cll_procesos){
 		anterior = current;
 		current = current->next;
 	}
-	return 0;
+	return 0;*/
 }
 
 int remove_older(struct pgm_process_cll *cll_procesos){

@@ -127,7 +127,11 @@ int get_thread_count(){
 void *worker_thread(void *tid) {
 	worker_id *thread_id = tid;
 	int worker_id = (int) thread_id->id;
+	int itr = 0;
 	while(1){
+		int complete = 0;
+
+
 		pthread_mutex_lock (&setted_thread_count_lock);//se bloquea el acceso a la cantidad de hilos seteada
 		while(setted_thread_count < worker_id){//Se suspende si la cantidad de hilos seteada es menor al id del thread
 			printf(ANSI_COLOR_CYAN"WORKER_THREAD: Suspendiendo...\n"ANSI_COLOR_RESET);
@@ -135,6 +139,7 @@ void *worker_thread(void *tid) {
 		}
 		pthread_mutex_unlock(&setted_thread_count_lock);
 		//Cuando la cantidad de hilos seteada es mayor al worker_id el worker_thread se activa
+
 
 
 		pthread_mutex_lock(&procesos_pendientes_cll_lock);//se bloquea el acceso a la cll de procesos
@@ -146,12 +151,18 @@ void *worker_thread(void *tid) {
 		struct pgm_process *proceso = procesos_pendientes_cll->pointer;//se accede al siguiente proceso en la cola
 		struct pgm_task *my_task = proceso->head;//se extrae el siguiente task disponible del proceso
 		move_pointer(procesos_pendientes_cll);//se mueve el puntero en la cola de procesos
-		int complete;
-		if((complete = !dequeue_task(proceso))==1){//se remueve el task extraido y se verifica si quedan tasks pendientes en el proceso
-			remove_process_by_id(proceso->id, procesos_pendientes_cll);//si no quedan tasks pendientes se remueve el proceso de la cll de procesos
-		}pthread_mutex_unlock(&procesos_pendientes_cll_lock);	
 
-		apply_sharpen(proceso->img_data, my_task);//se aplica el filtro a la porcion de la imagen que representa el task
+		if(dequeue_task(proceso) == 0){
+			remove_process_by_id(proceso->id, procesos_pendientes_cll);//si no quedan task pendientes se remueve el proceso de la ccl de proceso pendientes
+		}
+
+		pthread_mutex_unlock(&procesos_pendientes_cll_lock);
+
+		apply_sharpen(proceso->img_data, my_task);/*se aplica el filtro a la porcion de la imagen que representa el task*/
+
+		pthread_mutex_lock(&procesos_pendientes_cll_lock);
+		if((proceso->tasks_completados = proceso->tasks_completados + 1) == proceso->n_tasks) complete = 1;
+		pthread_mutex_unlock(&procesos_pendientes_cll_lock);
 
 		if(complete){//si el proceso ha sido completado se procede a guardarlo en la lista de procesos terminados
 			pthread_mutex_lock(&procesos_terminados_cll_lock);//Se protege el acceso a la lista de procesos terminados
@@ -159,7 +170,7 @@ void *worker_thread(void *tid) {
 			pthread_mutex_unlock(&procesos_terminados_cll_lock);
 			pthread_cond_signal(&procesos_terminados_cll_cond);//se notifica al hilo almacenador
 		}
-
+		itr++;
 	}
 
 }

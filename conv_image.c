@@ -46,7 +46,9 @@ const char *get_filename_ext(const char *filename) {
 
 
 int set_img_as_process(char* filename, struct pgm_process *nuevo_proceso, int n_tasks){
-	nuevo_proceso->b_restantes = 0;
+	nuevo_proceso->tasks_restantes = 0;
+	nuevo_proceso->tasks_completados = 0;
+	nuevo_proceso->n_tasks = n_tasks;
 	int *ancho = (int*)malloc(32);//ancho de la imagen
 	int *alto = (int*)malloc(32);//alto de la imagen
 	int *max_gris = (int*)malloc(32);//maximo valor gris
