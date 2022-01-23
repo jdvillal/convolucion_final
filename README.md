@@ -1,7 +1,6 @@
 ﻿# Proyecto final CONVOLUCIÓN CONCURRENTE SINCRONIZADA
-Proyecto final; procesamiento concurrente sincronizado de imagenes pgm.
 
-Nota: Las instrucciones de compilación se encuentran en la ultima sección de este archivo readme.md
+Nota: Las instrucciones de compilación se encuentran en la última sección de este archivo readme.md
 
 ## Servidor
 
@@ -18,12 +17,12 @@ Opciones:
  -h			Ayuda, muestra este mensaje
 ```
 
-### Ejecucion
+### Ejecución
 El servidor necesita de 4 argumentos para ejecutarse, si un argumento no es proporcionado se imprime un mensaje de error.
 
 El servidor recibe los argumentos en el siguiente orden:
 
-./server <puerto> <ruta/nombre del listado de imagenes> <cantidad_hilos> <cantidad_bloques>
+./server < puerto > <ruta/nombre del listado de imagenes> <cantidad_hilos> <cantidad_bloques>
 	
 Ejemplo:
 ```
@@ -32,7 +31,7 @@ $ ./server 8080 lista.txt 4 5
 
 Una vez ejecutado, el servidor ajusta los parametros y empieza los hilos que procesan las imagenes de forma concurrente mientras el hilo principal toma la tarea de escuchar instrucciones remotas en el <puerto> proporcionado como argumento.
 
-Mientras se procesan las imagenes, los hilos proporcionan informacion que permite reconocer el estado del proceso, como se muesra en el siguiente ejemplo.
+Mientras se procesan las imagenes, los hilos proporcionan información que permite reconocer el estado del proceso, como se muesra en el siguiente ejemplo:
 ```
 $ ./server 8080 lista.txt 4 2
 MAIN: Leyendo el archivo "lista.txt"
@@ -62,8 +61,11 @@ ALMACENADOR: Imagen "images/1demoIn.pgm" procesada con exito. La imagen resultan
 WORKER_THREAD 1: Sin imagenes que procesar. Suspendiendo...
 WORKER_THREAD 2: Sin imagenes que procesar. Suspendiendo...
 ALMACENADOR: Imagen "images/2demoIn.pgm" procesada con exito. La imagen resultante ha sido guardado en disco como: "imagesOut/sharpen_2_2demoIn.pgm"
-
 ```
+Cada vez que una imagen se termina de procesar, es guardada en un directorio llamado imagesOut, el cual es creado por el programa.
+	
+Nota: Dado que el server se mantiene en ejecucion a la espera de instrucciones remotas la única forma de terminar su ejecución enviado la señal SIGINT mediante la combinación de teclas CTRL-C
+	
 
 ## Cliente
 
@@ -81,7 +83,7 @@ Opciones:
 
 
 ```
-### Ejecucion
+### Ejecución
 Para ejecutar el cliente es necesario proporcionar como argumento el puerto en el que el server escucha instrucciones remotas.
 	
 ./client <puerto>
@@ -91,7 +93,7 @@ Ejemplo:
 $ ./client 8080
 ```
 
-Si el servidor no ha sido iniciado previamente, el cliente mostrara un error de conexion:
+Si el servidor no ha sido iniciado previamente, el cliente mostrara un error de conexión:
 ```
 $ ./client 8080
 Error de conexión: Connection refused
@@ -131,7 +133,7 @@ MAIN: Cambiando a 12 hilos de procesamiento disponibles
 > 
 ```
 #### comando exit
-Si el usuario desea terminar la ejecucion del cliente, lo puede hacer mediante el comando "exit" el cual no recibe argumento:
+Si el usuario desea terminar la ejecución del cliente, lo puede hacer mediante el comando "exit" el cual no recibe argumento:
 ```
 sharpen_client>>exit
 Desconectando...
@@ -141,9 +143,9 @@ Cuando el cliente se desconecta, el servidor muestra un mensaje indicandolo:
 MAIN: desconectando de localhost (127.0.0.1)
 ```
 
-## COMPILACION
+## COMPILACIÓN
 
-Se proporciona una herramienta llamada *./data* que genera dataset del tamano que queramos para facilitar el testeo del programa en diferentes escenarios.
+Se proporciona una herramienta llamada *./data* que genera dataset del tamaño que queramos para facilitar el testeo del programa en diferentes escenarios.
 Para compilar la herramienta:
 ```
 $ make data
@@ -153,7 +155,7 @@ Por ejemplo, si queremos generar un dataset de 100 imagenes, ejecutamos:
 ```
 $./data 100
 ```
-Esto crea un directorio con 100 imagenes y un archivo txt con la lista de las rutas de las 100 imagenes.
+Esto crea un directorio llamado "images" con 100 imagenes y un archivo llamado "lista.txt" con la lista de las rutas de las 100 imagenes.
 
 Para compilar cliente y servidor:
 ```
