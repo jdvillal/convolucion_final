@@ -119,7 +119,7 @@ sharpen_client>>add demoOn.pgm
 ERROR: El archivo ingresado no existe
 ```
 #### comando threads
-Si el usuario desea actualizar la cantidad de hilos de procesamiento, lo puede hacer meduante el comando "threads" de la siguiente manera:
+Si el usuario desea actualizar la cantidad de hilos de procesamiento, lo puede hacer mediante el comando "threads" de la siguiente manera:
 ```
 sharpen_client>>threads 12
 Cantidad de hilos de procesamientos cambiada con exito de 1 a 12
@@ -156,6 +156,8 @@ Por ejemplo, si queremos generar un dataset de 100 imagenes, ejecutamos:
 $./data 100
 ```
 Esto crea un directorio llamado "images" con 100 imagenes y un archivo llamado "lista.txt" con la lista de las rutas de las 100 imagenes.
+Nota: la herramienta *./data <n>* crea n copias de una imagen la imagen "demoIn.pgm" en el mismo directorio, por tanto la imagen no debe ser borrada. 
+	
 
 Para compilar cliente y servidor:
 ```
@@ -173,3 +175,4 @@ Para eliminar archivos temporales .o .a y directorios/archivos generados durante
 ```
 $ make clean
 ```
+Nota: *make clean* no borra archivos las imágenes del directorio usadas para el testeo.
