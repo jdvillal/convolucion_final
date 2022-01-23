@@ -1,5 +1,7 @@
-﻿# Proyecto final CONVOLUCION CONCURRENTE SINCRONIZADA
+﻿# Proyecto final CONVOLUCIÓN CONCURRENTE SINCRONIZADA
 Proyecto final; procesamiento concurrente sincronizado de imagenes pgm.
+
+Nota: Las instrucciones de compilación se encuentran en la ultima sección de este archivo readme.md
 
 ## Servidor
 
@@ -65,8 +67,8 @@ ALMACENADOR: Imagen "images/2demoIn.pgm" procesada con exito. La imagen resultan
 
 ## Cliente
 
-El programa *./servidor* 
-### *HELP
+El programa *./cliente* tiene el siguiente modo de uso 
+### HELP
 Si ejecutamos el cliente con la opción -h (help), la salida del programa es la siguiente:
 ```
 $ ./client -h
@@ -83,6 +85,7 @@ Opciones:
 Para ejecutar el cliente es necesario proporcionar como argumento el puerto en el que el server escucha instrucciones remotas.
 	
 ./client <puerto>
+	
 Ejemplo:
 ```
 $ ./client 8080
@@ -94,7 +97,7 @@ $ ./client 8080
 Error de conexión: Connection refused
 ```
 
-Si el cliente se conecta de forma exitosa, el prompt ">>" indica al usuario que puede ingresar uno de los 3 comandos disponibles [add] [threads] [exit]
+Si el cliente se conecta de forma exitosa, el prompt "sharpen_client>>" indica al usuario que puede ingresar uno de los 3 comandos disponibles [add] [threads] [exit]
 ```
 $ ./client 8080
 Conectado exitosamente a localhost en el puerto 8080.
