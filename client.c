@@ -31,7 +31,7 @@ int main(int argc, char **argv)
                 print_help_client(argv[0]);
                 return 0;
             default:
-                fprintf(stderr, "uso: %s <hostname> <puerto>\n", argv[0]);
+                fprintf(stderr, "uso: %s <puerto>\n", argv[0]);
                 fprintf(stderr, "     %s -h\n", argv[0]);
                 return -1;
         }

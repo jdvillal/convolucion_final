@@ -93,6 +93,7 @@ int main(int argc, char **argv){
 		pthread_create(&w_tid[i-1], NULL, worker_thread, (void*)thread_id);
 	}
 	printf("MAIN: Cantidad inicial de hilos de procesamiento seteada a %d threads.\n",get_thread_count());
+	printf("MAIN: Cantidad fija de bloques seteada en %d.\n",*S_blocks);
 
 
 	//Abre un socket de escucha en puerto indicado por el usuario

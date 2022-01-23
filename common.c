@@ -85,8 +85,8 @@ void print_help_server(char *command)
 }
 
 void print_help_client(char *command){//imprime por consola mensaje de ayuda (cliente) de la opcion -h
-    printf("Cliente simple de descarga de archivos.\n");
-    printf("uso:\n %s <hostname> <puerto>\n", command);
+    printf("Cliente para enviar instrucciones al server de procesamiento de imagenes pgm.\n");
+    printf("uso:\n %s <puerto>\n", command);
     printf(" %s -h\n", command);
     printf("Opciones:\n");
     printf(" -h\t\t\tAyuda, muestra este mensaje\n");
