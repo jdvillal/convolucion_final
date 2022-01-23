@@ -18,8 +18,11 @@ Opciones:
 
 ### Ejecucion
 El servidor necesita de 4 argumentos para ejecutarse, si un argumento no es proporcionado se imprime un mensaje de error.
+
 El servidor recibe los argumentos en el siguiente orden:
+
 ./server <puerto> <ruta/nombre del listado de imagenes> <cantidad_hilos> <cantidad_bloques>
+	
 Ejemplo:
 ```
 $ ./server 8080 lista.txt 4 5
@@ -78,6 +81,7 @@ Opciones:
 ```
 ### Ejecucion
 Para ejecutar el cliente es necesario proporcionar como argumento el puerto en el que el server escucha instrucciones remotas.
+	
 ./client <puerto>
 Ejemplo:
 ```
