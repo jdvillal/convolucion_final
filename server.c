@@ -40,20 +40,25 @@ int main(int argc, char **argv){
 		}
 	}
 
-	if(argc != 4){
-		fprintf(stderr, "uso: %s <puerto> <ruta/nombre listado de imagenes> <cantidad_hilos>\n", argv[0]);
-		fprintf(stderr, "		 %s -h\n", argv[0]);
+	if(argc != 5){
+		fprintf(stderr, "uso:\t%s <puerto> <ruta/nombre listado de imagenes> <cantidad_hilos> <cantidad_bloques>\n", argv[0]);
+		fprintf(stderr, "\t%s -h\n", argv[0]);
 		return -1;
 	}else{
 		port = argv[1];//puerto en el que escuchara al cliente
 		ruta_lista_imagenes = argv[2];//nombre o ruta del archivo txt con la lista de imagenes
 		current_max_threads = atoi(argv[3]);//Cantidad inicial de hilos
-		//Cantidad de bloques a dividir las imagenes
+		*S_blocks = atoi(argv[4]);//Cantidad de bloques a dividir las imagenes
 	}
 	//Valida el puerto
 	int port_n = atoi(port);
 	if(port_n <= 0 || port_n > USHRT_MAX){
 		fprintf(stderr, "Puerto: %s invalido. Ingrese un número entre 1 y %d.\n", port, USHRT_MAX);
+		return -1;
+	}
+
+	if(*S_blocks < 1){
+		printf("ERROR: Ingrese una cantidad de bloques mayor a 0");
 		return -1;
 	}
 	//valida que la cantidad de hilos ingreasada por el usuario sea numerica

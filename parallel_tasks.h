@@ -8,7 +8,7 @@
 //#include "data_structs.h"
 
 
-//=============================================================//
+//===============================================================//
 
 pthread_mutex_t fnames_queue_lock;
 pthread_cond_t fnames_queue_cond;
@@ -23,23 +23,17 @@ void add_to_fnames_queue(char *filename);
 //Lee una lista en un archivo .txt y agrega todos los nombres/rutas contenidas haciendo uso de add_file()
 int load_fnames_list(char *filename);
 
-//imprime todas los nombres/rutas almacenados en fnames_queue
-void print_fnames_queue();
-
-
-void print_process_cll();
 //===============================================================//
 
 pthread_mutex_t procesos_pendientes_cll_lock;
 pthread_cond_t procesos_pendientes_cll_cond;
 struct pgm_process_cll *procesos_pendientes_cll;
 
-
 void iniciar_cll_procesos_pendientes();
 
 void *lector_planificador(void *t);
 
-//=============================================================//
+//===============================================================//
 
 pthread_mutex_t setted_thread_count_lock;
 pthread_cond_t setted_thread_count_cond;

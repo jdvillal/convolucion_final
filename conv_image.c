@@ -183,9 +183,10 @@ char *get_file_out_name(struct pgm_process *my_process){
 	return str;
 }
 
-int save_image(struct pgm_process *my_process){
+char *save_image(struct pgm_process *my_process){
 	char comment[] = "Imagen filtrada por filter_server.c";
-	pgma_write( get_file_out_name(my_process), comment, *(my_process->img_data->ancho),*(my_process->img_data->alto),
+	char *name_out = get_file_out_name(my_process);
+	pgma_write( name_out, comment, *(my_process->img_data->ancho),*(my_process->img_data->alto),
 									*(my_process->img_data->matrix_original), my_process->img_data->matrix_procesada);
-	return 1;
+	return name_out;
 }

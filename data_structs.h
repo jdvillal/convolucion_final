@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 
 //=============================================================//
 struct str_queue_node{
@@ -64,6 +65,12 @@ void move_pointer(struct pgm_process_cll *cll_procesos);
 int get_process_by_id(int p_id, struct pgm_process_cll *cll_procesos, struct pgm_process *proceso);
 int remove_process_by_id(int p_id, struct pgm_process_cll *cll_procesos);
 int remove_older(struct pgm_process_cll *cll_procesos);
+
+
+
+void free_pgm_data(struct pgm_data *data);
+
+void free_pgm_process(struct pgm_process *proceso);
 
 
 

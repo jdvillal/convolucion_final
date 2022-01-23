@@ -1,1 +1,6 @@
 demoOut.pgm
+demoIn.pgm
+demoOut.pgm
+demoOut.pgm
+demoOut.pgm
+demoIn.pgm

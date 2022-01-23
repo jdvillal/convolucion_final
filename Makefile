@@ -1,5 +1,5 @@
 DEPS = common.h pgma_io.h conv_image.h data_structs.h parallel_tasks.h
-CFLAGS = -c -g
+CFLAGS = -c
 DFLAGS = -lm -lpthread
 
 .PHONY: all debug sanitize clean

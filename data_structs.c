@@ -133,3 +133,17 @@ int remove_older(struct pgm_process_cll *cll_procesos){
 	*(cll_procesos->size) = *(cll_procesos->size) - 1;
 	return 1;
 }
+
+void free_pgm_data(struct pgm_data *data){
+	free(data->name);
+	free(data->ancho);
+	free(data->alto);
+	free(data->max_gris);
+	free(data->matrix_original);
+	free(data->matrix_procesada);
+}
+
+void free_pgm_process(struct pgm_process *proceso){
+	free_pgm_data(proceso->img_data);
+	free(proceso);
+}

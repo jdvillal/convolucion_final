@@ -22,4 +22,4 @@ int set_img_as_process(char* filename, struct pgm_process *n_proceso, int n_bloq
 void apply_sharpen(struct pgm_data *my_data, struct pgm_task *my_task);
 char *get_file_out_name(struct pgm_process *my_process);
 
-int save_image(struct pgm_process *my_process);
+char *save_image(struct pgm_process *my_process);

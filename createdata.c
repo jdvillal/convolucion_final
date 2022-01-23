@@ -41,7 +41,15 @@ int cp(char FileSource [], char FileDestination [])
     return 0;
 }
 
-int main(){
+int main(int argc, char **argv){
+    int n_copias;
+    if(argc != 2){
+		fprintf(stderr, "uso:\t%s <numero_copias> \n", argv[0]);
+		return -1;
+    }else{
+        n_copias = atoi(argv[1]);
+    }
+
 
     FILE *f = fopen("lista.txt", "w");
     if (f == NULL)
@@ -52,11 +60,11 @@ int main(){
 
 
     if (stat("./images", &st) == -1) {
-    mkdir("./images", 0700);
+        mkdir("./images", 0700);
     }
 
     char source[] = "demoIn.pgm";
-    for(int i = 0; i < 10000; i ++){
+    for(int i = 0; i < n_copias; i ++){
         char prefix[100] = "images/";
         char i_str[10];
         sprintf(i_str,"%d",i+1);
