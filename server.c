@@ -146,8 +146,12 @@ void escuchar_cliente(int connfd){
 				return;
 			if(filesize>0){
 				/*Si el archivo ingresado por el cliente existe, se agrega a la cola*/
-				add_to_fnames_queue(token);
-			}
+				if(strcmp(get_filename_ext(token),"pgm")==0){
+					add_to_fnames_queue(token);
+				}else if(strcmp(get_filename_ext(token),"txt")==0){
+					load_fnames_list(token);
+				}
+			}	
 		}else if(strcmp(token,"threads")==0){
 			token = strtok(NULL, s);
 			int n_threads = atoi(token);
